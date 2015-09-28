@@ -223,6 +223,7 @@ var filterTarget = function(target, parent, selector) {
           return elem;
         }
       } else {
+
         if(elem == selector) {
           return elem;
         }
@@ -439,7 +440,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
     require: ['ngModel', 'nyaBsSelect'],
     controller: 'nyaBsSelectCtrl',
     compile: function nyaBsSelectCompile (tElement, tAttrs){
-      
+
 
       tElement.addClass('btn-group');
 
@@ -560,7 +561,6 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
       tElement.append(dropdownContainer);
 
       return function nyaBsSelectLink ($scope, $element, $attrs, ctrls) {
-        
         var ngCtrl = ctrls[0],
           nyaBsSelectCtrl = ctrls[1],
           liHeight,
@@ -687,6 +687,11 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
           if(jqLite(event.target).hasClass('dropdown-header')) {
             return;
           }
+          if(event.target.className !== $attrs.onlyButtonUpdateClass){
+              updateButtonContent();
+              return
+          }
+
           var nyaBsOptionNode = filterTarget(event.target, dropdownMenu[0], 'nya-bs-option'),
             nyaBsOption;
 
@@ -710,7 +715,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
         };
         $document.on('click', outClick);
 
-        
+
 
         dropdownToggle.on('blur', function() {
           if(!$element.hasClass('open')) {
@@ -869,7 +874,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
           }
 
           if(toggleButton) {
-            
+
 
             // press enter to active dropdown
             if((keyCode === 13 || keyCode === 38 || keyCode === 40) && !$element.hasClass('open')) {
@@ -1149,7 +1154,6 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
             index;
           // if user specify the value attribute. we should use the value attribute
           // otherwise, use the valueIdentifier specified field in target scope
-
           value = getOptionValue(nyaBsOption);
 
           if(typeof value !== 'undefined') {
@@ -1157,6 +1161,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
               // make a deep copy enforce ngModelController to call its $render method.
               // See: https://github.com/angular/angular.js/issues/1751
               viewValue = Array.isArray(modelValue) ? deepCopy(modelValue) : [];
+
               index = indexOf(viewValue, value);
               if(index === -1) {
                 // check element
@@ -1201,6 +1206,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
          */
         function getOptionValue(nyaBsOption) {
           var scopeOfOption;
+
           if(valueExpFn) {
             // here we use the scope bound by ourselves in the nya-bs-option.
             scopeOfOption = nyaBsOption.data('isolateScope');
@@ -1255,6 +1261,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
                 selection = [],
                 match,
                 count;
+
 
               if(isMultiple && $attrs.selectedTextFormat === 'count') {
                 count = 1;
@@ -1317,6 +1324,10 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
                 filterOption.append(selection[0]);
               } else {
                 filterOption.empty();
+                if($attrs.firstOnly){
+                    filterOption.append(selection[0]);
+                     return
+                }
                 for(index = 0; index < selection.length; index++) {
                   filterOption.append(selection[index]);
                   if(index < selection.length -1) {
@@ -1358,7 +1369,7 @@ nyaBsSelect.directive('nyaBsSelect', ['$parse', '$document', '$timeout', 'nyaBsC
           dropdownToggle.off();
           if (searchBox.off) searchBox.off();
           $document.off('click', outClick);
-          
+
         });
 
       };
@@ -1386,7 +1397,6 @@ nyaBsSelect.directive('nyaBsOption', ['$parse', function($parse){
       if(!match) {
         throw new Error('invalid expression');
       }
-
       // we want to keep our expression comprehensible so we don't use 'select as label for value in collection' expression.
       var valueExp = tAttrs.value,
         valueExpGetter = valueExp ? $parse(valueExp) : null;
@@ -1415,7 +1425,6 @@ nyaBsSelect.directive('nyaBsOption', ['$parse', function($parse){
         };
       }
       return function nyaBsOptionLink($scope, $element, $attr, ctrls, $transclude) {
-
         var nyaBsSelectCtrl = ctrls[0],
           ngCtrl = ctrls[1],
           valueExpFn,
@@ -1527,7 +1536,6 @@ nyaBsSelect.directive('nyaBsOption', ['$parse', function($parse){
           }
           collectionLength = collectionKeys.length;
           nextBlockOrder = new Array(collectionLength);
-
           for(index = 0; index < collectionLength; index++) {
             key = (collection === collectionKeys) ? index : collectionKeys[index];
             value = collection[key];
@@ -1586,7 +1594,6 @@ nyaBsSelect.directive('nyaBsOption', ['$parse', function($parse){
 
             nextBlockOrder = sortByGroup(nextBlockOrder, group, 'group');
           }
-
           // remove DOM nodes
           for( var blockKey in lastBlockMap) {
             block = lastBlockMap[blockKey];
@@ -1667,9 +1674,8 @@ nyaBsSelect.directive('nyaBsOption', ['$parse', function($parse){
               block.clone.addClass('group-item');
             }
           }
-
+n
           lastBlockMap = nextBlockMap;
-
           nyaBsSelectCtrl.onCollectionChange(values);
         }
       };
